@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import LazyLoader from "./utils/lazyLoader";
 import { BrowserRouter as Browser, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ToastContainer } from "react-toastify";
@@ -8,48 +9,23 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import "./App.css";
 
+import { store } from "./store/store";
+import { loadUser } from "./actions/userAction";
 import NotFound from "./components/Layouts/NotFound";
 import Unauthorized from "./components/Layouts/Unauthorized";
 import AdminGuard from "./components/Route/AdminGuard";
 import AuthGuard from "./components/Route/AuthGuard";
-import { store } from "./store/store";
-import { loadUser } from "./actions/userAction";
+import Header from "./components/Layouts/Header";
+import Footer from "./components/Layouts/Footer";
 
 // USER
 import UserLayout from "./components/Layouts/UserLayout";
-import Header from "./components/Layouts/Header";
-import Footer from "./components/Layouts/Footer";
 import Home from "./components/Home";
-import ProductDetail from "./components/Products/ProductDetail";
-import ProductSearchDetails from "./components/Products/ProductSearchDetails";
 import Login from "./components/User/Login";
-import Register from "./components/User/Register";
-import Profile from "./components/User/Profile";
-//import ProtectedRoute from "./components/Route/ProtectedRoute";
-import UpdateProfile from "./components/User/UpdateProfile";
-import UpdatePassword from "./components/User/UpdatePassword";
-import ForgotPassword from "./components/User/ForgotPassword";
-import ResetPassword from "./components/User/ResetPassword";
-import CartComponent from "./components/Cart/CartComponent";
-import Shipping from "./components/Cart/Shipping";
-import ConfirmOrder from "./components/Cart/ConfirmOrder";
-import Payment from "./components/Cart/Payment";
-import OrderSuccess from "./components/Cart/OrderSuccess";
-import UserOrders from "./components/Order/UserOrders";
-import OrderDetail from "./components/Order/OrderDetail";
 
 //ADMIN
-
 import AdminLayout from "./components/Layouts/AdminLayout";
 import Dashboard from "./components/Admin/Dashboard";
-import ProductList from "./components/Admin/ProductList";
-import NewProduct from "./components/Admin/NewProduct";
-import UpdateExistingProduct from "./components/Admin/UpdateExistingProduct";
-import OrderList from "./components/Admin/OrderList";
-import UpdateExistingOrder from "./components/Admin/UpdateExistingOrder";
-import UserLists from "./components/Admin/UserLists";
-import UpdateExistingUser from "./components/Admin/UpdateExisitngUser";
-import ReviewList from "./components/Admin/ReviewList";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 function App() {
@@ -274,43 +250,73 @@ function App() {
               {/* USER LAYOUT */}
               <Route element={<UserLayout />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/product/:pid" element={<ProductDetail />} />
-                <Route path="/cart" element={<CartComponent />} />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/register"
+                  element={<LazyLoader comp="Register" />}
+                />
+                <Route
+                  path="/product/:pid"
+                  element={<LazyLoader comp="ProductDetail" />}
+                />
+                <Route
+                  path="/cart"
+                  element={<LazyLoader comp="CartComponent" />}
+                />
                 <Route
                   path="/search/:keyword"
-                  element={<ProductSearchDetails />}
+                  element={<LazyLoader comp="ProductSearchDetails" />}
                 />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/password/forgot" element={<ForgotPassword />} />
+                <Route
+                  path="/password/forgot"
+                  element={<LazyLoader comp="ForgotPassword" />}
+                />
                 <Route
                   path="/password/reset/:token"
-                  element={<ResetPassword />}
+                  element={<LazyLoader comp="ResetPassword" />}
                 />
 
                 {/* AUTH PROTECTED */}
                 <Route element={<AuthGuard />}>
-                  <Route path="/userprofile" element={<Profile />} />
+                  <Route
+                    path="/userprofile"
+                    element={<LazyLoader comp="Profile" />}
+                  />
                   <Route
                     path="/userprofile/update"
-                    element={<UpdateProfile />}
+                    element={<LazyLoader comp="UpdateProfile" />}
                   />
                   <Route
                     path="/userprofile/update/password"
-                    element={<UpdatePassword />}
+                    element={<LazyLoader comp="UpdatePassword" />}
                   />
-                  <Route path="/shipping" element={<Shipping />} />
-                  <Route path="/order/confirm" element={<ConfirmOrder />} />
-                  <Route path="/order/success" element={<OrderSuccess />} />
-                  <Route path="/orders" element={<UserOrders />} />
-                  <Route path="/order/:id" element={<OrderDetail />} />
+                  <Route
+                    path="/shipping"
+                    element={<LazyLoader comp="Shipping" />}
+                  />
+                  <Route
+                    path="/order/confirm"
+                    element={<LazyLoader comp="ConfirmOrder" />}
+                  />
+                  <Route
+                    path="/order/success"
+                    element={<LazyLoader comp="OrderSuccess" />}
+                  />
+                  <Route
+                    path="/orders"
+                    element={<LazyLoader comp="UserOrders" />}
+                  />
+                  <Route
+                    path="/order/:id"
+                    element={<LazyLoader comp="OrderDetail" />}
+                  />
 
                   {stripeApi && (
                     <Route
                       path="/payment"
                       element={
                         <Elements stripe={stripeApi}>
-                          <Payment />
+                          <LazyLoader comp="Payment" />
                         </Elements>
                       }
                     />
@@ -325,26 +331,38 @@ function App() {
               <Route element={<AdminLayout />}>
                 <Route element={<AdminGuard />}>
                   <Route path="/admin/dashboard" element={<Dashboard />} />
-                  <Route path="/admin/products" element={<ProductList />} />
+                  <Route
+                    path="/admin/products"
+                    element={<LazyLoader comp="ProductList" />}
+                  />
                   <Route
                     path="/admin/products/create"
-                    element={<NewProduct />}
+                    element={<LazyLoader comp="NewProduct" />}
                   />
                   <Route
                     path="/admin/product/:id"
-                    element={<UpdateExistingProduct />}
+                    element={<LazyLoader comp="UpdateExistingProduct" />}
                   />
-                  <Route path="/admin/orders" element={<OrderList />} />
+                  <Route
+                    path="/admin/orders"
+                    element={<LazyLoader comp="OrderList" />}
+                  />
                   <Route
                     path="/admin/order/:id"
-                    element={<UpdateExistingOrder />}
+                    element={<LazyLoader comp="UpdateExistingOrder" />}
                   />
-                  <Route path="/admin/users" element={<UserLists />} />
+                  <Route
+                    path="/admin/users"
+                    element={<LazyLoader comp="UserLists" />}
+                  />
                   <Route
                     path="/admin/user/:id"
-                    element={<UpdateExistingUser />}
+                    element={<LazyLoader comp="UpdateExistingUser" />}
                   />
-                  <Route path="/admin/reviews" element={<ReviewList />} />
+                  <Route
+                    path="/admin/reviews"
+                    element={<LazyLoader comp="ReviewList" />}
+                  />
                 </Route>
 
                 <Route path="/admin/*" element={<NotFound />} />
